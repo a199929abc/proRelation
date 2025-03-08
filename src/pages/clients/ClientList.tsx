@@ -3,18 +3,24 @@ import {
   Box,
   Typography,
   Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Button,
   IconButton,
   Tooltip,
   CircularProgress,
+  Grid,
+  Card,
+  CardContent,
+  CardActions,
+  Chip,
+  Divider,
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import {
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Phone as PhoneIcon,
+  Email as EmailIcon,
+} from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useClients } from '../../contexts/ClientContext';
 
@@ -25,6 +31,21 @@ export const ClientList: React.FC = () => {
   const handleDelete = (id: string) => {
     if (window.confirm('Are you sure you want to delete this client?')) {
       deleteClient(id);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Study Permit':
+        return 'info';
+      case 'Work Permit':
+        return 'warning';
+      case 'PR':
+        return 'success';
+      case 'Citizen':
+        return 'primary';
+      default:
+        return 'default';
     }
   };
 
@@ -44,68 +65,90 @@ export const ClientList: React.FC = () => {
         </Button>
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={5} align="center">
-                  <Box display="flex" justifyContent="center" p={2}>
-                    <CircularProgress />
+      {isLoading ? (
+        <Box display="flex" justifyContent="center" p={4}>
+          <CircularProgress />
+        </Box>
+      ) : clients.length === 0 ? (
+        <Paper sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="body1">
+            No clients yet. Click "New Client" to add one.
+          </Typography>
+        </Paper>
+      ) : (
+        <Grid container spacing={2}>
+          {clients.map((client) => (
+            <Grid item xs={12} sm={6} md={4} key={client.id}>
+              <Card>
+                <CardContent>
+                  <Box mb={2}>
+                    <Typography
+                      variant="h6"
+                      component="div"
+                      sx={{
+                        cursor: 'pointer',
+                        '&:hover': {
+                          color: 'primary.main'
+                        }
+                      }}
+                      onClick={() => navigate(`/clients/${client.id}`)}
+                    >
+                      {client.personalInfo.legalName}
+                    </Typography>
+                    <Chip
+                      label={client.personalInfo.status.current}
+                      color={getStatusColor(client.personalInfo.status.current) as any}
+                      size="small"
+                      sx={{ mt: 1 }}
+                    />
                   </Box>
-                </TableCell>
-              </TableRow>
-            ) : clients.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} align="center">
-                  <Typography variant="body1" sx={{ py: 2 }}>
-                    No clients yet. Click "New Client" to add one.
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            ) : (
-              clients.map((client) => (
-                <TableRow key={client.id}>
-                  <TableCell>{client.personalInfo.legalName}</TableCell>
-                  <TableCell>{client.personalInfo.status.current}</TableCell>
-                  <TableCell>{client.personalInfo.contact.phone}</TableCell>
-                  <TableCell>{client.personalInfo.contact.email}</TableCell>
-                  <TableCell align="right">
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                      <Tooltip title="Edit">
-                        <IconButton
-                          size="small"
-                          onClick={() => navigate(`/clients/${client.id}/edit`)}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete">
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => handleDelete(client.id)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
+                  
+                  <Divider sx={{ my: 1 }} />
+                  
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <PhoneIcon color="action" fontSize="small" />
+                      <Typography variant="body2" color="text.secondary">
+                        {client.personalInfo.contact.phone}
+                      </Typography>
                     </Box>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <EmailIcon color="action" fontSize="small" />
+                      <Typography variant="body2" color="text.secondary" sx={{ 
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {client.personalInfo.contact.email}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </CardContent>
+                
+                <CardActions sx={{ justifyContent: 'flex-end', px: 2, pb: 2 }}>
+                  <Tooltip title="Edit">
+                    <IconButton
+                      size="small"
+                      onClick={() => navigate(`/clients/${client.id}/edit`)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete">
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => handleDelete(client.id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                </CardActions>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </Box>
   );
 }; 

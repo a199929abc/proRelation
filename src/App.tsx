@@ -5,6 +5,8 @@ import { MainLayout } from './layouts/MainLayout';
 import { Dashboard } from './pages/Dashboard';
 import { ClientList } from './pages/clients/ClientList';
 import { NewClient } from './pages/clients/NewClient';
+import { ClientDetail } from './pages/clients/ClientDetail';
+import { EditClient } from './pages/clients/EditClient';
 import { ClientProvider } from './contexts/ClientContext';
 
 // Create a theme instance
@@ -31,6 +33,8 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="clients" element={<ClientList />} />
               <Route path="clients/new" element={<NewClient />} />
+              <Route path="clients/:id/edit" element={<EditClient />} />
+              <Route path="clients/:id" element={<ClientDetail />} />
               {/* Add more routes here as we create more pages */}
             </Route>
           </Routes>
